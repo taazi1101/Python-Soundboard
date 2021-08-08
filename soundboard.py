@@ -2,16 +2,23 @@
 import numpy as np
 import keyboard
 import sounddevice
+import threading
 import soundfile
 import time
 
-
+stop_button = "f2"
 devices = (sounddevice.default.device[0],"VB-Audio Virtual Ca, MME")
 
 def callback(indata, outdata, frames, time, status):
         if status:
                 print(status)
         outdata[:] = indata
+
+def stopcheck(button):
+        while True:
+                if keyboard.is_pressed(button):
+                        sounddevice.stop()
+                time.sleep(0.2)
 
 def play(files,devices):
     with sounddevice.Stream(device=devices,
@@ -26,7 +33,7 @@ def play(files,devices):
                         #print("Playing")
                         array, smp_rt = soundfile.read(x[0], dtype = 'float32') 
                         sounddevice.play(array,smp_rt,device=devices[1])
-                        status = sounddevice.wait() 
+                        status = sounddevice.wait()
                         sounddevice.stop()
                         
                 except:
@@ -43,5 +50,6 @@ with open("sound.conf","r") as infile:
             temp.append(y.replace("\n",""))
         sgem = temp
         files.append((sgem[0],sgem[1]))
-        
+
+threading.Thread(target=lambda:stopcheck(stop_button)).start()
 play(files,devices)
