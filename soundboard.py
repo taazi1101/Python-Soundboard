@@ -35,6 +35,7 @@ def play(files,devices):
                         sounddevice.play(array,smp_rt,device=devices[1])
                         status = sounddevice.wait()
                         sounddevice.stop()
+                        array = None
                         
                 except:
                     print("Error")
